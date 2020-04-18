@@ -8,26 +8,98 @@ bibliography: lit_examples.bib
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Fay-Herriot estimator with spatially correlated random area effects
+## Fay-Herriot (FH) estimator with spatially correlated random area effects
 
 One extension of the Fay-Herriot model is the estimation of small area indirect 
 estimators under area level random effect models when only area level data are 
 available and the random effects are correlated [@pratesi2008].
 
-```{r spatialInitial}
+### Load package and data
+
+The emdi package loaded here is the one under development with the new area-level 
+models. The installation is explained in installEmdiExtensions.
+
+For the data, aggregted survey and population data is loaded and combined with 
+function combined_data such that the indicators of interest (direct point and 
+variance estimate) and the additional information are in one data frame.
+
+```{r loadEssentials}
+# Load package emdi
 library(emdi)
+
+# Load aggregated data
+data("eusilcA_popAgg")
+data("eusilcA_smpAgg")
+
+# Combine sample and population data
+combined_data <- combine_data(pop_data = eusilcA_popAgg, pop_domains = "Domain",
+                             smp_data = eusilcA_smpAgg, smp_domains = "Domain")
+head(combined_data)
+```
+
+### Create a spatial correlation matrix
+
+For the estimation of the Fay-Herriot model with spatially correlated random 
+effects, a spatial correlation matrix needs to be calculated. This matrix is 
+one argument in the fh function.
+
+The spatial correlation matrix can be calculated based on a shape file and with 
+the help of functions from package maptools and spdep. 
+
+```{r createSpatialCorrelationMatrix, warning = FALSE}
+library(maptools)
+library(spdep)
+
+# Load shapefile
+load_shapeaustria()
+austria_shape <- merge(shape_austria_dis, eusilcA_smpAgg, by.x = "PB",
+                       by.y = "Domain", all.x = F)
+rel <- poly2nb(austria_shape, row.names = austria_shape$PB)
+euSilcA_prox <- nb2mat(rel, style = "W", zero.policy = TRUE)
+head(euSilcA_prox)
+```
+
+### Estimate the FH estimates with spatially correlated random area effects
+
+In the following, the various options for adding spatially correlated random 
+area effects in package emdi are presented: correlation = "spatial". 
+
+#### Standard
+
+One way to add spatially correlated random area effects follows @pratesi2008. In
+this specification, following estimation methods are possible:
+
+* Variance estimation: 
+    + Maximum likelihood (method = "ml")
+    + Restricted maximum likelihood (method = "reml")
+* MSE estimation: 
+    + Analytical (default, mse_type = "analytical")
+    + Naive parametric bootstrap (mse_type = "spatialparboot")
+    + Bias corrected parametric bootstrap (mse_type = "spatialparbootbc")
+    + Naive nonparametric bootstrap (mse_type = "spatialnonparboot")
+    + Bias corrected nonparametric bootstrap (mse_type = "spatialnonparbootbc")
+
+```{r fitSpatialFH}
 fh_spatial <- fh(fixed = Mean ~ cash + self_empl, vardir = "Var_Mean", 
-tol = 0.00000001, maxit = 2000, combined_data = combined_data, 
-domains = "Domain", method = "reml", correlation = "spatial", 
-corMatrix = eusilcA_proxmat, MSE = TRUE, mse_type = "analytical")
+                 tol = 0.00000001, maxit = 2000, combined_data = combined_data, 
+                 domains = "Domain", method = "reml", correlation = "spatial", 
+                 corMatrix = eusilcA_proxmat, MSE = TRUE)
+fh_spatial
 ```
 
-## Including Plots
+#### Robust
 
-You can also embed plots, for example:
+The package also offers a robust estimation of the FH model with spatially 
+correlated random area effects following @Warnholz2016c. In this specification, 
+following estimation methods are possible: 
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r fitRobustSpatialFH}
+fh_robustSpatial <- fh(fixed = Mean ~ cash + self_empl, vardir = "Var_Mean", 
+                 tol = 0.00000001, maxit = 2000, combined_data = combined_data, 
+                 domains = "Domain", method = "reblupbc", correlation = "spatial", 
+                 corMatrix = eusilcA_proxmat, MSE = TRUE, mse_type = "boot", B = 2)
+fh_robustSpatial
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
