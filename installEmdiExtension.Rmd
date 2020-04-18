@@ -1,7 +1,7 @@
 ---
 title: "Install the extension of package emdi from second branch"
-output: html_document
-bibliography: Literatur_Diss.bib  
+output: pdf_document
+bibliography: lit_examples.bib
 ---
 
 ```{r setup, include=FALSE}

@@ -1,0 +1,33 @@
+---
+title: "Spatial Fay-Herriot model"
+output: pdf_document
+bibliography: lit_examples.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Fay-Herriot estimator with spatially correlated random area effects
+
+One extension of the Fay-Herriot model is the estimation of small area indirect 
+estimators under area level random effect models when only area level data are 
+available and the random effects are correlated [@pratesi2008].
+
+```{r spatialInitial}
+library(emdi)
+fh_spatial <- fh(fixed = Mean ~ cash + self_empl, vardir = "Var_Mean", 
+tol = 0.00000001, maxit = 2000, combined_data = combined_data, 
+domains = "Domain", method = "reml", correlation = "spatial", 
+corMatrix = eusilcA_proxmat, MSE = TRUE, mse_type = "analytical")
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
