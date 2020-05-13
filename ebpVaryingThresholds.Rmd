@@ -1,0 +1,125 @@
+---
+title: "Varying thresholds for poverty mapping"
+output: pdf_document
+bibliography: lit_examples.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Poverty mapping with emdi based on the empirical best prediction 
+
+The ebp function in package emdi returns ten different indicators by default. These
+include the head count ratio and the poverty gap. Both indicators makes use of
+a threshold or a poverty line. This threshold could be a fixed value or based on 
+the indicator of interst, e.g., 60% of the median income. In the latter case, the 
+poverty line needs to be calculated in each bootstrap iteration for the estimation 
+of the uncertainty measure. Thus, it should be given as a function to the threshold 
+argument in the ebp function. 
+
+### Load package and data
+
+The emdi package loaded here is the emdi package published on [CRAN](https://cran.r-project.org/web/packages/emdi/index.html). The installation 
+is explained in installEmdiExtensions.
+
+For the data, unit-level survey and population data is loaded.
+
+```{r loadData}
+# Load package
+library(emdi)
+
+# Load aggregated data
+data("eusilcA_pop")
+data("eusilcA_smp")
+```
+
+
+### One fixed poverty line
+
+One way to add a poverty line is a fixed value. This could be, e.g., 10885.33. 
+
+For an application, the bootstrap iterations should be increased but due to 
+computational reasons B is set to 2.
+
+```{r fixedLine}
+emdi_model <- ebp(fixed = eqIncome ~ gender + eqsize + cash + self_empl + 
+                    unempl_ben + age_ben + surv_ben + sick_ben + dis_ben + rent +
+                    fam_allow + house_allow + cap_inv + tax_adj, pop_data = eusilcA_pop,
+                  pop_domains = "district", smp_data = eusilcA_smp,
+                  smp_domains = "district", threshold = 10885.33, MSE = TRUE, 
+                  B = 2)
+head(estimators(emdi_model))
+```
+
+### Poverty line as a function of y
+
+Another way to add a poverty line is a function of y.  For instance, the EU countries
+use 60% of the median equvalized disposable income. In emdi, a function of y that 
+calculates 60% of the median of y could be used as a threshold. This also enables the 
+calculation of a poverty line in each bootstrap iteration for the uncertainty measure.  
+
+For an application, the bootstrap iterations should be increased but due to 
+computational reasons B is set to 2.
+
+```{r function}
+emdi_model <- ebp(fixed = eqIncome ~ gender + eqsize + cash + self_empl + 
+                    unempl_ben + age_ben + surv_ben + sick_ben + dis_ben + rent +
+                    fam_allow + house_allow + cap_inv + tax_adj, pop_data = eusilcA_pop,
+                  pop_domains = "district", smp_data = eusilcA_smp,
+                  smp_domains = "district", threshold = function(y){0.6 * median(y)},
+                  MSE = TRUE, B = 2)
+head(estimators(emdi_model))
+```
+
+### Mixed indicator based on two poverty lines
+
+In some applications, it is of interest to use different poverty lines for, e.g., 
+rural and urban areas. Since it is only possible to add one poverty line to 
+function ebp, following workaround is possible. 
+
+In the following, two poverty lines 10885.33 and 8885.33 are used to estimate 
+two head count ratios using the two poverty lines, respectively. The first one 
+is the automatically returned head count ratio. The second will be defined 
+as a custom indicator which will be the future mixed indicator.
+
+```{r twoLines}
+emdi_model <- ebp(fixed = eqIncome ~ gender + eqsize + cash + self_empl + 
+                    unempl_ben + age_ben + surv_ben + sick_ben + dis_ben + rent +
+                    fam_allow + house_allow + cap_inv + tax_adj, pop_data = eusilcA_pop,
+                  pop_domains = "district", smp_data = eusilcA_smp,
+                  smp_domains = "district", threshold = 10885.33,
+                  MSE = TRUE, B = 2, 
+                  custom_indicator = list(mixed_hcr = function(y, threshold){mean(y < 8885.33)}))
+head(estimators(emdi_model))
+```
+
+This emdi_model object returns the Head_Count with the poverty line 10885.33 and
+the mixed_hcr with the poverty line 8885.33. Assuming, that the poverty line 
+10885.33 applies to the first 20 domains and the poverty line 8885.33 otherwise, 
+the mixed_hcr indicator can be updated as follows. 
+
+```{r manipulation}
+first20 <- rep(FALSE, 94)
+first20[1:20] <- TRUE 
+
+emdi_model$ind$mixed_hcr[first20] <- emdi_model$ind$Head_Count[first20]
+emdi_model$MSE$mixed_hcr[first20] <- emdi_model$MSE$Head_Count[first20]
+head(estimators(emdi_model))
+tail(estimators(emdi_model))
+```
+
+All methods can be applied on this manipulated emdi_model object. 
+
+```{r mapping}
+load_shapeaustria()
+map_plot(emdi_model, indicator = c("Head_Count", "mixed_hcr"), 
+                                   map_obj = shape_austria_dis, map_dom_id = "PB", 
+         scale_points = c(0, 0.6))
+```
+
+
+
+
+
+

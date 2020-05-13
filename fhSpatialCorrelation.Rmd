@@ -70,14 +70,14 @@ One way to add spatially correlated random area effects follows @pratesi2008. In
 this specification, following estimation methods are possible:
 
 * Variance estimation: 
-    + Maximum likelihood (method = "ml")
-    + Restricted maximum likelihood (method = "reml")
+    + Maximum likelihood: method = "ml"
+    + Restricted maximum likelihood: method = "reml"
 * MSE estimation: 
-    + Analytical (default, mse_type = "analytical")
-    + Naive parametric bootstrap (mse_type = "spatialparboot")
-    + Bias corrected parametric bootstrap (mse_type = "spatialparbootbc")
-    + Naive nonparametric bootstrap (mse_type = "spatialnonparboot")
-    + Bias corrected nonparametric bootstrap (mse_type = "spatialnonparbootbc")
+    + Analytical: mse_type = "analytical" (default)
+    + Naive parametric bootstrap: mse_type = "spatialparboot"
+    + Bias corrected parametric bootstrap: mse_type = "spatialparbootbc"
+    + Naive nonparametric bootstrap: mse_type = "spatialnonparboot"
+    + Bias corrected nonparametric bootstrap: mse_type = "spatialnonparbootbc"
 
 ```{r fitSpatialFH}
 fh_spatial <- fh(fixed = Mean ~ cash + self_empl, vardir = "Var_Mean", 
@@ -92,6 +92,16 @@ fh_spatial
 The package also offers a robust estimation of the FH model with spatially 
 correlated random area effects following @Warnholz2016c. In this specification, 
 following estimation methods are possible: 
+
+* Variance estimation: 
+    + Robustified maximum likelihood with robust eblup prediction: method = "reblup"
+    + Robustified maximum likelihood with robust and bias-corrected eblup prediction: method = "reblupbc"
+* MSE estimation: 
+    + Bootstrap: mse_type = "boot"
+    + Pseudo linearisation: mse_type = "pseudo"
+
+For an application, the bootstrap iterations should be increased but due to 
+computational reasons B is set to 2.
 
 ```{r fitRobustSpatialFH}
 fh_robustSpatial <- fh(fixed = Mean ~ cash + self_empl, vardir = "Var_Mean", 
