@@ -1,8 +1,8 @@
-## Welcome to emdiExamples
+## Welcome to emdiToUse
 
 The R package [**emdi**](https://cran.r-project.org/web/packages/emdi/index.html) provides a large collection of small area estimation methods. The package documentation and the vignettes serve the purpose to explain the available methods and/or to shows the functionality. This page will offer small examples for specific applications. 
 
-For the most recent technical and methodological updates, **emdi** is also available on [GitHub](https://github.com/SoerenPannier/emdi).
+For the most recent technical and methodological updates, **emdi** is available on [GitHub](https://github.com/SoerenPannier/emdi).
 
 ### Overview of the **emdi**
 
