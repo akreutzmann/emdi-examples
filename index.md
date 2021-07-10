@@ -4,7 +4,7 @@ The R package [**emdi**](https://cran.r-project.org/web/packages/emdi/index.html
 
 For the most recent technical and methodological updates, **emdi** is available on [GitHub](https://github.com/SoerenPannier/emdi).
 
-### Overview of the **emdi**
+### Overview of the content in **emdi**
 
 The methods implemented in **emdi** can be classified into following categories: 
 - Direct estimation 
