@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 The `fh` function allows for two transformations: log and arcsin.
 
-![Estimation options for the transformed area-level model](areaLevelTransformationsFlowchart.JPG)
+![Estimation options for the transformed area-level model](figures/areaLevelTransformationsFlowchart.JPG)
 
 ### Load package and data
 

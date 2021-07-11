@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 The `fh` function allows various estimation methods for the variance of the 
 random effects and the mean squared error (MSE). 
 
-![Estimation options for the basic area-level model](basicAreaLevelFlowchart.JPG)
+![Estimation options for the basic area-level model](figures/basicAreaLevelFlowchart.JPG)
 
 ### Load package and data
 
